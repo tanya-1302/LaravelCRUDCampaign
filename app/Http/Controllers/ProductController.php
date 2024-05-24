@@ -10,7 +10,7 @@ use App\Models\Manufacturer;
 
 class ProductController extends Controller
 {
-    public function index(Request $request){
+    public function index(ProductRequest $request){
         try {
             $products = $request->manufacturer->products;
             $products->each(function ($product) {

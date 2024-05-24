@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::resource('/manufacturer', ManufacturerController::class);
 // Route::get('/manufacturer', [ManufacturerController::class, 'index']);
-Route::resource('/product', ProductController::class);
+Route::resource('/product', ProductController::class)->middleware('authMiddleware');
 Route::resource('/ingredient', IngredientController::class);
 Route::resource('/nutritional_fact', NutritionalFactController::class);
 
