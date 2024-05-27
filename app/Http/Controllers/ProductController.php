@@ -3,22 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
-use Illuminate\Support\Facades\Request;
+use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 use App\Models\Manufacturer;
 
 class ProductController extends Controller
 {
-    public function index(ProductRequest $request){
+    public function index(Request $request){
         try {
+            // $products = $request->products;
             $products = $request->manufacturer->products;
-            $products->each(function ($product) {
-                if ($product->image) {
-                    // $path = base64_decode($product->image);
-                    $product->image = Storage::url($product->image);
-                }
-            });
+            // $products->each(function ($product) {
+            //     if ($product->image) {
+            //         dd($product->image);
+            //         // $path = base64_decode($product->image);
+            //         $product->image = Storage::disk('local')->get($product->image);
+            //     }
+            // });
             return response()->json($products, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -34,10 +37,17 @@ class ProductController extends Controller
     public function store(ProductRequest $request){
         try {
             $data = $request->validated();
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('images', 'public');
+                $data['image'] = $path;
+                // $image_data = file_get_contents($request->file('image'));
+                // $data['image'] = base64_encode($image_data);
+            }
 
             $product = $request->manufacturer->products()->create($data);
 
             return response()->json($product, 201);
+
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -47,14 +57,15 @@ class ProductController extends Controller
         // dd($request->getContent());
         try {
             $product = Product::findOrFail($id);
+            if($product->manufacturer_id != $request->manufacturer->id){
+                return response()->json('cannot update values for this manufacturer');
+            }
             $data = $request->validated();
             if ($request->hasFile('image')) {
                 $path = $request->file('image')->store('images', 'public');
                 $data['image'] = $path;
             }
-            $manufacturer = Manufacturer::find($data['manufacturer_id']);
-            $product->update($data);
-            $product->manufacturer()->associate($manufacturer);
+            $request->manufacturer->products()->update($data);
             $product->save();
             return response()->json($product, 200);
         } catch (\Exception $e) {

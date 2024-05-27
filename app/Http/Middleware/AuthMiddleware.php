@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use App\Models\Product;
 
 class AuthMiddleware
 {
@@ -30,16 +31,12 @@ class AuthMiddleware
 
         // Validate manufaturer id
         $mf = Manufacturer::find($res->mf_id);
-        if($mf){
-            // $request->merge(['product' => $mf]);
-            $request = (object) array_merge((array)$request, (array)$mf);
+        if($mf){           }
+            $request->merge(['manufacturer' => $mf]);
         }
         else{
             return response()->json('mf_id does not exist');
         }
-        // Merge manufaturer to request
-
         return $next($request);
     }
-}
 }

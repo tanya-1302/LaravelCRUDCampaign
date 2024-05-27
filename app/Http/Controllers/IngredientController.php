@@ -9,9 +9,12 @@ use Illuminate\Http\Request;
 
 class IngredientController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
         try {
-            $ingredients = Ingredient::all();
+            $product = Product::findOrFail($request->query('product_id'));
+            $ingredients = $product->ingredient;
+            // $ingredients = Ingredient::where('product_id', '=', $product_id)->firstOrFail();
+            // $ingredients = Ingredient::all();
             return response()->json($ingredients, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -27,7 +30,7 @@ class IngredientController extends Controller
     public function store(IngredientRequest $request){
         try{
             $ingredient = Ingredient::create($request->validated());
-            $product = Product::find($request->input('manufacturer_id'));
+            $product = Product::find($request->input('product_id'));
             $ingredient->product()->associate($product);
             return response()->json($ingredient, 201);        
         }catch(\Exception $e){
@@ -39,13 +42,15 @@ class IngredientController extends Controller
         try {
             $ingredient = Ingredient::findOrFail($id);
             $ingredient->update($request->validated());
+            $product = Product::find($request->input('product_id'));
+            $ingredient->product()->associate($product);
             return response()->json($ingredient, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function delete(int $id){
+    public function destroy(int $id){
         try {
             $ingredient = Ingredient::findOrFail($id);
             $ingredient->delete();

@@ -11,7 +11,7 @@ class NutritionalFactRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,6 +25,7 @@ class NutritionalFactRequest extends FormRequest
             'name' => 'required|string',
             'quantity' => 'required|int',
             'unit' => 'required|string',
+            'ingredient_id' => 'required|int'
         ];
     }
 }

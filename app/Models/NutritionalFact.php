@@ -17,6 +17,6 @@ class NutritionalFact extends Model
     ];
 
     public function ingredient(){
-        return $this->hasMany(Ingredient::class);
+        return $this->belongsToMany(Ingredient::class, 'ingredient_nutritional_fact');
     }
 }
